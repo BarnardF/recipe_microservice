@@ -14,11 +14,11 @@ def main():
         
         sorted_recipes = sorted(
             recipe_stats.items(),
-            key=lambda x: (-x[1]['matches'], x[1]['total_ingredients'])
+            key=lambda x: (-x[1]['total_matches'], x[1]['total_ingredients'])
         )
 
         for recipe, stats in sorted_recipes:
-            print(f"- {recipe}:\n  Time: {recipes[recipe]['time']}\n  Difficulty: {recipes[recipe]['difficulty']}\n  {stats['matches']}/{stats['total_ingredients']} matches-{stats['matched_ingredients']}")
+            print(f"- {recipe}:\n  Time: {recipes[recipe]['time']}\n  Difficulty: {recipes[recipe]['difficulty']}\n  {stats['total_matches']}/{stats['total_ingredients']} matches-{stats['matched_ingredients']}")
         
     else:
         print(f"No recipes found with ingredients - {user_ingredients_list}")
