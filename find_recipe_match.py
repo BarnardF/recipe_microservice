@@ -1,4 +1,5 @@
-from recipes import recipes
+from flask import Flask
+from data.recipes import recipes
 
 #ai helped with this and its way simpler
 def find_recipe(user_ingredients):

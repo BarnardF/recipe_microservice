@@ -1,7 +1,12 @@
-from recipes import recipes
+from flask import Flask
+from data.recipes import recipes
 from find_recipe_match import find_recipe
 
+app = Flask(__name__)
 
+
+
+@app.route('/')
 def main():
     user_input = input("Enter ingredients (seperated by comma's): ").lower().split(",")
     user_ingredients_list = [u_input.strip() for u_input in user_input]
@@ -27,4 +32,4 @@ def main():
 
 
 if __name__=="__main__":
-    main()
+    app.run(debug=True, port=5000)
