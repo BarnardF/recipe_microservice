@@ -57,6 +57,17 @@ def get_local_recipes(ingredient_list):
 def get_spoonacular_recipes(ingredient_list):
     return spoonacular.find_recipes_by_ingredients(ingredient_list)
 
+#testing api endpoint
+@app.route('/test_api/<string:ingredients>')
+def test_api(ingredients):
+    ingredients_list = [ing.strip().lower() for ing in ingredients.split(",")]
+    api_results = spoonacular.find_recipes_by_ingredients(ingredients_list)
+    
+    return jsonify({
+        "query": ingredients,
+        "api_results": api_results,
+        "count": len(api_results)
+    })
 
 if __name__=="__main__":
     app.run(debug=True, port=5000)

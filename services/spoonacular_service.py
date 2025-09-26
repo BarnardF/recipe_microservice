@@ -10,6 +10,7 @@ class SpoonacularService:
 
     def find_recipes_by_ingredients(self, ingredients, number=10):
         if not self.api_key:
+            print("No spoonacular api key found")
             return []
         
         #converts list into comma seperated string
