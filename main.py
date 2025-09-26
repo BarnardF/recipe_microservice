@@ -1,34 +1,61 @@
-from flask import Flask
+from flask import Flask, jsonify
 from data.recipes import recipes
-from find_recipe_match import find_recipe
+from services.spoonacular_service import SpoonacularService
+
 
 app = Flask(__name__)
-
-
+spoonacular = SpoonacularService()
 
 @app.route('/')
-def main():
-    user_input = input("Enter ingredients (seperated by comma's): ").lower().split(",")
-    user_ingredients_list = [u_input.strip() for u_input in user_input]
+def hello():
+    return "recipe api local + spoonacular"
 
-    recipe_stats = find_recipe(user_ingredients_list)
+@app.route('/find_recipe/<string:ingredients>')
+def find_recipe(ingredients):
+    ingredient_list = [ing.strip().lower() for ing in ingredients.split(',')]
+
+    local_results = get_local_recipes(ingredient_list)
+    api_results = get_spoonacular_recipes(ingredient_list)
+
+    combined_results = {
+        'query': ingredients,
+        'local_recipes': local_results,
+        'spoonacular_recipes': api_results,
+        'total_local': len(local_results),
+        'total_api': len(api_results)
+    }
+
+    return jsonify(combined_results)
+
+def get_local_recipes(ingredient_list):
+    user_set = set(ingredient_list)
+    recipe_stats = {}
     
-    if recipe_stats:
-        print(f"Recipes with matching ingrediences, {user_ingredients_list}, found:")
-
+    for title, details in recipes.items():
+        recipe_set = set(ing.lower() for ing in details['ingredients'])
         
-        sorted_recipes = sorted(
-            recipe_stats.items(),
-            key=lambda x: (-x[1]['total_matches'], x[1]['total_ingredients'])
-        )
-
-        for recipe, stats in sorted_recipes:
-            print(f"- {recipe}:\n  Time: {recipes[recipe]['time']}\n  Difficulty: {recipes[recipe]['difficulty']}\n  {stats['total_matches']}/{stats['total_ingredients']} matches-{stats['matched_ingredients']}")
+        # Find intersection
+        matches = user_set & recipe_set
+        # print(matches)
         
-    else:
-        print(f"No recipes found with ingredients - {user_ingredients_list}")
-    
-    # print(amount_of_ingredients)
+        if matches:
+            recipe_stats[title] = {
+                "total_matches": len(matches),
+                "total_ingredients": len(details["ingredients"]),
+                "matched_ingredients": list(matches)
+            }
+
+    # used to sort recipes based on the most matches and recipe with the least ingredients
+    sorted_recipes = sorted(
+        recipe_stats.items(),
+        key=lambda x: (-x[1]['total_matches'], x[1]['total_ingredients'])
+    )
+
+    # print(recipe_stats)
+    return sorted_recipes
+
+def get_spoonacular_recipes(ingredient_list):
+    return spoonacular.find_recipes_by_ingredients(ingredient_list)
 
 
 if __name__=="__main__":
