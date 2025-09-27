@@ -8,24 +8,46 @@ spoonacular = SpoonacularService()
 
 @app.route('/')
 def hello():
-    return "recipe api local + spoonacular"
+    return "something's running!"
 
 @app.route('/find_recipe/<string:ingredients>')
 def find_recipe(ingredients):
-    ingredient_list = [ing.strip().lower() for ing in ingredients.split(',')]
+    if not ingredients or ingredients.strip() == "":
+        return jsonify({"error": "No ingredients provided"}), 400 #missing required fields - https://restfulapi.net/http-status-codes
+    
+    try:
+        #Split the input string by commas, remove extra spaces, convert to lowercase,
+        # and build a clean list of ingredients while ignoring any empty entries
+        ingredient_list = [ing.strip().lower() for ing in ingredients.split(',') if ing.strip()]
 
-    local_results = get_local_recipes(ingredient_list)
-    api_results = get_spoonacular_recipes(ingredient_list)
+        if not ingredient_list:
+            return jsonify({"error": "No valid ingredients provided"}), 400
+        
+        local_results = get_local_recipes(ingredient_list)
+        api_results = get_spoonacular_recipes(ingredient_list)
 
-    combined_results = {
-        'query': ingredients,
-        'local_recipes': local_results,
-        'spoonacular_recipes': api_results,
-        'total_local': len(local_results),
-        'total_api': len(api_results)
-    }
+    #     combined_results = {
+    #         'query': ingredients,
+    #         'local_recipes': local_results,
+    #         'spoonacular_recipes': api_results,
+    #         'total_local': len(local_results),
+    #         'total_api': len(api_results),
+    #         'status': 'success'
+    #     }
 
-    return jsonify(combined_results)
+    # return jsonify(combined_results)
+
+        return jsonify({
+            'query': ingredients,
+            'local_recipes': local_results,
+            'spoonacular_recipes': api_results,
+            'total_local': len(local_results),
+            'total_api': len(api_results),
+            'status': 'local' if not api_results else 'local + spoonacular'
+        })
+    
+    except Exception as e:
+        return jsonify({"error": f"server error: {str(e)}"}), 500
 
 def get_local_recipes(ingredient_list):
     user_set = set(ingredient_list)
