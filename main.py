@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from data.recipes import recipes
 from services.spoonacular_service import SpoonacularService
 
@@ -9,6 +9,10 @@ spoonacular = SpoonacularService()
 @app.route('/')
 def hello():
     return "something's running!"
+
+@app.route('/interface')
+def interface():
+    return render_template('index.html')
 
 @app.route('/find_recipe/<string:ingredients>')
 def find_recipe(ingredients):
