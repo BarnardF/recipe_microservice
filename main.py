@@ -100,31 +100,69 @@ def get_local_recipes(ingredient_list):
 
 
 def get_spoonacular_recipes(ingredient_list):
+    # raw_results = spoonacular.find_recipes_by_ingredients(ingredient_list)
+
+    # filtered_results = []
+    # for recipe in raw_results:
+    #     used_count = len(recipe.get('usedIngredients', []))
+    #     missed_count = len(recipe.get('missedIngredients', []))
+    #     total_count = used_count + missed_count
+
+    #     if total_count > 0:
+    #         match_percentage = used_count/ total_count * 100
+
+    #         recipe["match_percentage"] = round(match_percentage, 1)
+
+    #         if len(ingredient_list) <= 3:
+    #             filtered_results.append(recipe)
+    #         else:
+    #             if match_percentage >= 40:
+    #                 filtered_results.append(recipe)
+
+    # filtered_results.sort(key=lambda r: r.get("match_percentage", 0), reverse=True) #largest to smallest
+    
+    # if len(ingredient_list) <= 3:
+    #     return filtered_results[:5]
+    # else:
+    #     return filtered_results
+
+    #ai helped with the following to format spoonacular to be more similar with local recipes - chatgpt 29 Sep 2025
     raw_results = spoonacular.find_recipes_by_ingredients(ingredient_list)
+    user_set = set(ingredient_list)
 
-    filtered_results = []
+    normalized_results = []
     for recipe in raw_results:
-        used_count = len(recipe.get('usedIngredients', []))
-        missed_count = len(recipe.get('missedIngredients', []))
-        total_count = used_count + missed_count
+        used_ingredients = [ing['name'].lower() for ing in recipe.get('usedIngredients', [])]
+        missed_ingredients = [ing['name'].lower() for ing in recipe.get('missedIngredients', [])]
 
-        if total_count > 0:
-            match_percentage = used_count/ total_count * 100
+        total_count = len(used_ingredients) + len(missed_ingredients)
+        if total_count == 0:
+            continue
 
-            recipe["match_percentage"] = round(match_percentage, 1)
+        match_percentage = len(used_ingredients) / total_count * 100
 
-            if len(ingredient_list) <= 3:
-                filtered_results.append(recipe)
-            else:
-                if match_percentage >= 40:
-                    filtered_results.append(recipe)
+        normalized_recipe = {
+            "title": recipe.get("title", "Unknown"),
+            "total_matches": len(used_ingredients),
+            "total_ingredients": total_count,
+            "matched_ingredients": used_ingredients,
+            "missed_ingredients": missed_ingredients,
+            "match_percentage": round(match_percentage, 1),
+            "spoonacular_id": recipe.get("id")  # optional, useful for API links
+        }
 
-    filtered_results.sort(key=lambda r: r.get("match_percentage", 0), reverse=True) #largest to smallest
+        if len(ingredient_list) <= 3:
+            normalized_results.append(normalized_recipe)
+        else:
+            if match_percentage >= 40:
+                normalized_results.append(normalized_recipe)
+
+    normalized_results.sort(key=lambda r: r["match_percentage"], reverse=True) #largest to smallest
     
     if len(ingredient_list) <= 3:
-        return filtered_results[:5]
+        return normalized_results[:5]
     else:
-        return filtered_results
+        return normalized_results
 
 
 

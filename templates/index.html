@@ -151,18 +151,30 @@
                 html += '<h2>Spoonacular Recipes</h2>';
                 
                 data.spoonacular_recipes.forEach(recipe => {
-                    const usedIngredients = recipe.usedIngredients || [];
-                    const missedIngredients = recipe.missedIngredients || [];
+                    // const usedIngredients = recipe.matched_ingredients  || [];
+                    // const missedIngredients = recipe.missed_ingredients  || [];
                     
-                    html += `
-                        <div class="recipe-item">
-                            <div class="recipe-title">${recipe.title}</div>
-                            <div class="recipe-details">
-                                Used: ${usedIngredients.map(ing => ing.name).join(', ')}
-                                <br>Missing: ${missedIngredients.map(ing => ing.name).join(', ')}
+                    // html += `
+                    //     <div class="recipe-item">
+                    //         <div class="recipe-title">${recipe.title}</div>
+                    //         <div class="recipe-details">
+                    //             Used: ${usedIngredients.map(ing => ing.name).join(', ')}
+                    //             <br>Missing: ${missedIngredients.map(ing => ing.name).join(', ')}
+                    //         </div>
+                    //     </div>
+                    // `;
+                        const usedIngredients = recipe.matched_ingredients || [];
+                        const missedIngredients = recipe.missed_ingredients || [];
+
+                        html += `
+                            <div class="recipe-item">
+                                <div class="recipe-title">${recipe.title}</div>
+                                <div class="recipe-details">
+                                    Used: ${usedIngredients.join(', ')}
+                                    <br>Missing: ${missedIngredients.join(', ')}
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                 });
                 html += '</div>';
             }
