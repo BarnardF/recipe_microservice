@@ -1,1 +1,4 @@
 .env
+__pycache__/config.cpython-313.pyc
+data/__pycache__/recipes.cpython-313.pyc
+services/__pycache__/spoonacular_service.cpython-313.pyc
