@@ -23,7 +23,7 @@ class SpoonacularService:
             #https://spoonacular.com/food-api/docs#Search-Recipes-by-Ingredients
             'ingredients': ingredients_str,
             'number': number,
-            'ranking': 2,
+            'ranking': 3, #maximum used ingredients in recipe
             'ignorePantry': True
         }
 
