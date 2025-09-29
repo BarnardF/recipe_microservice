@@ -53,35 +53,80 @@ def find_recipe(ingredients):
     except Exception as e:
         return jsonify({"error": f"server error: {str(e)}"}), 500
 
+
+
 def get_local_recipes(ingredient_list):
     user_set = set(ingredient_list)
     recipe_stats = {}
     
     for title, details in recipes.items():
         recipe_set = set(ing.lower() for ing in details['ingredients'])
-        
         # Find intersection
         matches = user_set & recipe_set
         # print(matches)
-        
+
         if matches:
+            match_percentage = len(matches) / len(details['ingredients']) * 100
+
+            # if match_percentage >= 0.4:
             recipe_stats[title] = {
                 "total_matches": len(matches),
                 "total_ingredients": len(details["ingredients"]),
-                "matched_ingredients": list(matches)
+                "matched_ingredients": list(matches),
+                "match_percentage": round(match_percentage, 1)
             }
 
-    # used to sort recipes based on the most matches and recipe with the least ingredients
+    #sort by match percentage and then by fewer total ingredients
     sorted_recipes = sorted(
         recipe_stats.items(),
-        key=lambda x: (-x[1]['total_matches'], x[1]['total_ingredients'])
+        key=lambda x: (-x[1]['match_percentage'], x[1]['total_ingredients'])
     )
 
+    #if only 3 or less ingredients givin return top 5 macthes
+    if len(ingredient_list) <= 3:
+        return sorted_recipes[:5]
+    else:
+        #if more ingredients return recipes with a 40 or above match
+        filtered_recipes = []
+        for r in sorted_recipes:
+            match_percentage = r[1]['match_percentage']
+            if match_percentage >= 40:
+                filtered_recipes.append(r) 
+        return filtered_recipes
+
     # print(recipe_stats)
-    return sorted_recipes
+    # return sorted_recipes
+
+
 
 def get_spoonacular_recipes(ingredient_list):
-    return spoonacular.find_recipes_by_ingredients(ingredient_list)
+    raw_results = spoonacular.find_recipes_by_ingredients(ingredient_list)
+
+    filtered_results = []
+    for recipe in raw_results:
+        used_count = len(recipe.get('usedIngredients', []))
+        missed_count = len(recipe.get('missedIngredients', []))
+        total_count = used_count + missed_count
+
+        if total_count > 0:
+            match_percentage = used_count/ total_count * 100
+
+            recipe["match_percentage"] = round(match_percentage, 1)
+
+            if len(ingredient_list) <= 3:
+                filtered_results.append(recipe)
+            else:
+                if match_percentage >= 40:
+                    filtered_results.append(recipe)
+
+    filtered_results.sort(key=lambda r: r.get("match_percentage", 0), reverse=True) #largest to smallest
+    
+    if len(ingredient_list) <= 3:
+        return filtered_results[:5]
+    else:
+        return filtered_results
+
+
 
 #testing api endpoint
 @app.route('/test_api/<string:ingredients>')
