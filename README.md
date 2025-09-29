@@ -43,20 +43,31 @@ recipes = {
     # ... 40+ recipes covering breakfast, lunch, dinner, desserts
 }
 
-# Hybrid API Integration (Phase 2 Complete)
-- Local recipe matching with optimized set intersection operations
-- Spoonacular API service layer fully implemented and integrated
+# Hybrid API Integration (Phase 2 Complete + Enhanced)
+- Local recipe matching with percentage-based scoring algorithm
+- Spoonacular API service layer with optimized ranking (maximum used ingredients)
+- Intelligent filtering: Top 5 results for ≤3 ingredients, 40%+ match for more ingredients
+- Normalized response format matching local and external API structures
 - Combined response format with local + external results
 - Error handling for API failures with graceful fallback to local recipes
 - Environment-based configuration for API keys
+- **NEW**: Web interface for easy testing and demonstration
 ```
 
 ### Flask Implementation ✅ (Phase 2 Complete)
 ```python
 # Working Flask endpoints
+@app.route('/')
+def hello():
+    # Basic server status endpoint
+
+@app.route('/interface')
+def interface():
+    # Web interface for testing the API
+
 @app.route('/find_recipe/<string:ingredients>')
 def find_recipe(ingredients):
-    # Hybrid approach: returns both local and Spoonacular results
+    # Hybrid approach with enhanced percentage-based matching
     # Format: /find_recipe/egg,cheese,milk
     # Returns combined JSON with local_recipes and spoonacular_recipes
 
@@ -67,13 +78,15 @@ def test_api(ingredients):
 
 ### Recent Achievements
 1. **✅ Algorithm Optimization**: Set-based intersection for O(R × (I + U)) performance
-2. **✅ Tie-breaking Logic**: Secondary sorting by ingredient count (fewer = easier recipes)
+2. **✅ Percentage-Based Matching**: **ENHANCED** - Smart filtering with match percentage calculation
 3. **✅ Flask Migration**: Complete console-to-web API conversion with JSON responses
 4. **✅ Enhanced Dataset**: 40+ recipes with comprehensive cuisine, meal type, and difficulty metadata
 5. **✅ Professional Structure**: Organized codebase with proper Flask project architecture
-6. **✅ Hybrid API Integration**: **NEW** - Spoonacular API fully integrated with local recipes
-7. **✅ Environment Configuration**: **NEW** - Secure API key management with .env files
-8. **✅ Error Handling**: **NEW** - Graceful fallback when external API is unavailable
+6. **✅ Hybrid API Integration**: Spoonacular API fully integrated with local recipes
+7. **✅ Environment Configuration**: Secure API key management with .env files
+8. **✅ Error Handling**: Graceful fallback when external API is unavailable
+9. **✅ Web Interface**: **NEW** - HTML interface for easy testing and demonstration
+10. **✅ Intelligent Filtering**: **NEW** - Adaptive result filtering based on ingredient count
 
 ### Current Status & Next Steps
 **Phase 2 Status**: ✅ **COMPLETED** - Hybrid API integration working
@@ -102,11 +115,13 @@ def test_api(ingredients):
 **Current Flask Implementation:**
 ```
 recipe-microservice/
-├── main.py                    # Flask application with hybrid endpoints
+├── main.py                    # Flask application with hybrid endpoints + web interface
 ├── services/
-│   └── spoonacular_service.py # External API integration service
+│   └── spoonacular_service.py # External API integration service (enhanced)
 ├── data/
 │   └── recipes.py            # Local recipe database (40+ recipes)
+├── templates/
+│   └── index.html           # Web interface for testing
 ├── config.py                 # Configuration management
 ├── .env                      # Environment variables (API keys)
 ├── requirements.txt          # Dependencies
@@ -115,10 +130,13 @@ recipe-microservice/
 ```
 
 **Completed Features:**
-- ✅ Flask app with working hybrid endpoints
+- ✅ Flask app with working hybrid endpoints and web interface
 - ✅ URL parameter ingredient input (/find_recipe/egg,cheese,milk)
-- ✅ **Spoonacular API integration** - Service layer implemented and working
-- ✅ **Hybrid response format** - Local + external API results combined
+- ✅ **Spoonacular API integration** - Service layer with optimized ranking
+- ✅ **Percentage-based matching** - Smart algorithm with match percentage calculation
+- ✅ **Intelligent filtering** - Adaptive results based on ingredient count (≤3: top 5, >3: 40%+ match)
+- ✅ **Normalized response format** - Unified structure for local and external results
+- ✅ **Web interface** - HTML/CSS/JS frontend for testing and demonstration
 - ✅ **Error handling** - Graceful fallback when API unavailable
 - ✅ **Environment configuration** - Secure API key management
 - ✅ JSON response formatting optimized for mobile client consumption
@@ -144,6 +162,12 @@ recipe-microservice/
 
 ### Working Endpoints
 ```
+GET /
+# Basic server status check
+
+GET /interface
+# Web interface for testing the API (HTML frontend)
+
 GET /find_recipe/<ingredients>
 Example: /find_recipe/egg,cheese,milk
 Response: {
@@ -152,24 +176,28 @@ Response: {
         ["Cheese Omelette", {
             "total_matches": 2,
             "total_ingredients": 5,
-            "matched_ingredients": ["egg", "cheese"]
+            "matched_ingredients": ["egg", "cheese"],
+            "match_percentage": 40.0
         }]
     ],
     "spoonacular_recipes": [
         {
-            "id": 12345,
             "title": "Perfect Cheese Omelet",
-            "usedIngredients": [...],
-            "missedIngredients": [...]
+            "total_matches": 2,
+            "total_ingredients": 6,
+            "matched_ingredients": ["egg", "cheese"],
+            "missed_ingredients": ["butter", "salt"],
+            "match_percentage": 33.3,
+            "spoonacular_id": 12345
         }
     ],
-    "total_local": 5,
-    "total_api": 10,
+    "total_local": 3,
+    "total_api": 5,
     "status": "local + spoonacular"
 }
 
 GET /test_api/<ingredients>
-# Testing endpoint for Spoonacular API only
+# Testing endpoint for raw Spoonacular API data
 ```
 
 ### Planned API Design (Phase 3)
@@ -190,11 +218,16 @@ GET /api/v1/recipes/search?q={query}
 
 ## Matching Algorithm
 
-### Current Implementation (Optimized)
-- **Local Matching**: Set intersection operations for O(R × (I + U)) performance
+### Current Implementation (Enhanced Algorithm)
+- **Local Matching**: Percentage-based scoring with set intersection operations
+- **Intelligent Filtering**: Adaptive results based on ingredient count
+  - ≤3 ingredients: Returns top 5 matches regardless of percentage
+  - >3 ingredients: Returns only recipes with ≥40% ingredient match
 - **Hybrid Results**: Combines local recipe matches with Spoonacular API results
-- **Ranking**: Primary by match count, secondary by total ingredients (fewer = easier)
+- **Normalized Format**: Both local and external results use consistent structure
+- **Ranking**: Primary by match percentage, secondary by total ingredients
 - **Fallback**: Graceful degradation when external API unavailable
+- **Web Interface**: Built-in HTML interface for testing and demonstration
 
 ### Algorithm Flow
 ```python
@@ -202,21 +235,28 @@ def find_recipe(ingredients):
     # 1. Parse and clean ingredient list
     ingredient_list = [ing.strip().lower() for ing in ingredients.split(',')]
     
-    # 2. Get local recipe matches
+    # 2. Get local recipe matches with percentage-based scoring
     local_results = get_local_recipes(ingredient_list)
     
-    # 3. Query Spoonacular API
+    # 3. Query Spoonacular API with normalized response format
     api_results = get_spoonacular_recipes(ingredient_list)
     
-    # 4. Return hybrid response
+    # 4. Apply intelligent filtering:
+    #    ≤3 ingredients: top 5 results
+    #    >3 ingredients: ≥40% match required
+    
+    # 5. Return hybrid response with consistent structure
     return combined_json_response
 ```
 
 ### Performance Characteristics
 - **Local Search**: O(R × (I + U)) where R=recipes, I=ingredients, U=user_ingredients
-- **API Integration**: Asynchronous external calls with timeout handling
-- **Memory Usage**: In-memory recipe storage, minimal footprint
+- **Percentage Calculation**: Real-time match percentage scoring for precise ranking
+- **Intelligent Filtering**: Adaptive result count based on ingredient specificity
+- **API Integration**: External calls with normalized response processing
+- **Memory Usage**: In-memory recipe storage with efficient set operations
 - **Error Resilience**: Continues operation if external API fails
+- **Web Interface**: Lightweight HTML/CSS/JS frontend for testing
 
 ## Technology Stack
 
@@ -337,7 +377,8 @@ def find_recipe(ingredients):
 2. Install dependencies: `pip install -r requirements.txt`
 3. Create `.env` file with `SPOONACULAR_API_KEY=your_key_here` (optional)
 4. Run: `python main.py`
-5. Test: `http://localhost:5000/find_recipe/egg,cheese,milk`
+5. Test web interface: `http://localhost:5000/interface`
+6. Test API directly: `http://localhost:5000/find_recipe/egg,cheese,milk`
 
 ### API Usage
 ```bash
@@ -346,6 +387,9 @@ curl "http://localhost:5000/find_recipe/egg,milk,flour"
 
 # Test external API integration
 curl "http://localhost:5000/test_api/chicken,rice"
+
+# Access web interface
+open http://localhost:5000/interface
 ```
 
 **Project Status**: Phase 2 Complete ✅ | Ready for Mobile Integration 🚀
