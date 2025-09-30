@@ -20,8 +20,6 @@ def find_recipe(ingredients):
         return jsonify({"error": "No ingredients provided"}), 400 #missing required fields - https://restfulapi.net/http-status-codes
     
     try:
-        #Split the input string by commas, remove extra spaces, convert to lowercase,
-        # and build a clean list of ingredients while ignoring any empty entries
         ingredient_list = [ing.strip().lower() for ing in ingredients.split(',') if ing.strip()]
 
         if not ingredient_list:
@@ -91,7 +89,7 @@ def get_local_recipes(ingredient_list):
     
     for title, details in recipes.items():
         recipe_set = set(ing.lower() for ing in details['ingredients'])
-        # Find intersection
+
         matches = user_set & recipe_set
         # print(matches)
 
@@ -179,7 +177,7 @@ def get_spoonacular_recipes(ingredient_list):
             "matched_ingredients": used_ingredients,
             "missed_ingredients": missed_ingredients,
             "match_percentage": round(match_percentage, 1),
-            "spoonacular_id": recipe.get("id")  # optional, useful for API links
+            "spoonacular_id": recipe.get("id")
         })
 
     #     if len(ingredient_list) <= 3:
@@ -211,4 +209,5 @@ def test_api(ingredients):
     })
 
 if __name__=="__main__":
+
     app.run(debug=True, port=5000)
