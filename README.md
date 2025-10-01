@@ -2,11 +2,11 @@
 
 A Flask-based microservice that finds recipes based on available ingredients. Combines a local recipe database with the Spoonacular API to provide curated recipe suggestions.
 
-![Image unavailbe](result.png)
-
 **Built by:** Final-year Software Engineering student  
 **Purpose:** Learning Flask, API integration, and backend development  
 **Status:** Complete and functional - ready for future enhancements
+
+![Image unavailbe](result.png)
 
 ## What It Does
 
@@ -153,3 +153,4 @@ Personal learning project - feel free to reference or adapt for educational purp
 
 
 **Project Status:** Core functionality complete. Taking a break before adding mobile integration and advanced features.
+
