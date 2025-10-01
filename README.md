@@ -59,7 +59,7 @@ recipe-microservice/
 ## Getting Started
 
 ### Prerequisites
-- Python 3.x
+- Python
 - Spoonacular API key (optional - works without it using local recipes only)
 
 ### Setup
@@ -148,5 +148,6 @@ This project demonstrated:
 Personal learning project - feel free to reference or adapt for educational purposes.
 
 ---
+
 
 **Project Status:** Core functionality complete. Taking a break before adding mobile integration and advanced features.
