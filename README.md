@@ -143,6 +143,10 @@ This project demonstrated:
 - Docker containerization
 - Comprehensive API documentation
 
+## Acknowledgment
+
+This README was created with the assistance of AI (ChatGPT by OpenAI) to ensure clarity and consistency.
+
 ## License
 
 Personal learning project - feel free to reference or adapt for educational purposes.
@@ -150,6 +154,7 @@ Personal learning project - feel free to reference or adapt for educational purp
 ---
 
 
-**Project Status:** Core functionality complete. Taking a break before adding mobile integration and advanced features.
+<!--**Project Status:** Core functionality complete. Taking a break before adding mobile integration and advanced features.-->
+
 
 
